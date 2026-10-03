@@ -1,34 +1,43 @@
+#include "platform/RaylibView.hpp"
 #include "raylib.h"
+#include "simulation/Simulation.hpp"
+
+#include <exception>
 
 int main() {
-  constexpr int WIDTH = 800;
-  constexpr int HEIGHT = 600;
+  constexpr int GRID_WIDTH = 256;
+  constexpr int GRID_HEIGHT = 192;
+  constexpr int CELL_SCALE = 4;
 
-  InitWindow(WIDTH, HEIGHT, "Falling Sand");
+  constexpr int WINDOW_WIDTH = GRID_WIDTH * CELL_SCALE;
+  constexpr int WINDOW_HEIGHT = GRID_HEIGHT * CELL_SCALE;
+
+  InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Falling Sand");
+
+  if (!IsWindowReady()) {
+    TraceLog(LOG_ERROR, "Failed to create the window");
+    return 1;
+  }
+
   SetTargetFPS(60);
 
-  bool greenSelected = false;
-  while (!WindowShouldClose()) {
-    const Vector2 mousePosition = GetMousePosition();
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      greenSelected = !greenSelected;
+  int exitCode = 0;
+
+  try {
+    sand::Simulation simulation(GRID_WIDTH, GRID_HEIGHT);
+    sand::RaylibView view(simulation, CELL_SCALE);
+
+    while (!WindowShouldClose()) {
+      BeginDrawing();
+      ClearBackground(BLACK);
+      view.draw(simulation);
+      EndDrawing();
     }
-
-    const bool leftButtonHeld = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
-    const Color panelColor = greenSelected ? GREEN : SKYBLUE;
-
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-    DrawRectangle(240, 200, 520, 200, panelColor);
-    DrawText("Drawing Happens in order", 300, 280, 30, DARKGRAY);
-    DrawText(leftButtonHeld ? "Left button: HELD" : "Left button: released",
-             300, 330, 20, leftButtonHeld ? MAROON : DARKBLUE);
-    DrawText(TextFormat("Mouse: %0.f, %0.f", mousePosition.x, mousePosition.y),
-             10, 10, 20, BLACK);
-    DrawCircleV(mousePosition, 8.0F, RED);
-    EndDrawing();
+  } catch (const std::exception &error) {
+    TraceLog(LOG_ERROR, "%s", error.what());
+    exitCode = 1;
   }
 
   CloseWindow();
-  return 0;
+  return exitCode;
 }
