@@ -7,14 +7,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(raylib 5.5 REQUIRED)
 
 add_executable(falling_sand
-    src/main.cpp
-    src/platform/RaylibView.cpp
-    src/platform/RaylibView.hpp
-    src/simulation/Simulation.cpp
-    src/simulation/Simulation.hpp
+    main.cpp
+    platform/RaylibView.cpp
+    platform/RaylibView.hpp
+    simulation/Simulation.cpp
+    simulation/Simulation.hpp
 )
 
-target_include_directories(falling_sand PRIVATE src)
+target_include_directories(falling_sand PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_features(falling_sand PRIVATE cxx_std_20)
 
 set_target_properties(falling_sand PROPERTIES CXX_EXTENSIONS OFF)
