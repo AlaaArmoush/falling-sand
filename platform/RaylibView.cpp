@@ -1,5 +1,4 @@
 #include "platform/RaylibView.hpp"
-
 #include "raylib.h"
 #include "simulation/Simulation.hpp"
 
@@ -7,6 +6,12 @@
 #include <stdexcept>
 
 namespace sand {
+
+namespace {
+// float because origin in screen space
+constexpr float GRID_ORIGIN_X = 0.0F;
+constexpr float GRID_ORIGIN_Y = 0.0F;
+} // namespace
 RaylibView::RaylibView(const Simulation &simulation, int scale)
     : gridWidth_(simulation.width()), gridHeight_(simulation.height()),
       scale_(scale), pixels_(static_cast<std::size_t>(gridWidth_) *
@@ -32,6 +37,33 @@ RaylibView::RaylibView(const Simulation &simulation, int scale)
 
 RaylibView::~RaylibView() { UnloadTexture(texture_); }
 
+InputCommands RaylibView::pollInput() const {
+  InputCommands commands;
+  commands.clearRequested = IsKeyPressed(KEY_C);
+
+  if (!IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+    return commands;
+  }
+
+  const Vector2 mousePosition = GetMousePosition();
+  const float displayWidth = static_cast<float>(gridWidth_ * scale_);
+  const float displayHeight = static_cast<float>(gridHeight_ * scale_);
+
+  // reject outside positions
+  if (mousePosition.x < GRID_ORIGIN_X ||
+      mousePosition.x >= GRID_ORIGIN_X + displayWidth ||
+      mousePosition.y < GRID_ORIGIN_Y ||
+      mousePosition.y >= GRID_ORIGIN_Y + displayHeight) {
+    return commands;
+  }
+
+  const int gridX = static_cast<int>(mousePosition.x - GRID_ORIGIN_X) / scale_;
+  const int gridY = static_cast<int>(mousePosition.y - GRID_ORIGIN_Y) / scale_;
+
+  commands.paintPosition = GridPosition{gridX, gridY};
+  return commands;
+}
+
 void RaylibView::draw(const Simulation &simulation) {
   for (int y = 0; y < gridHeight_; ++y) {
     for (int x = 0; x < gridWidth_; ++x) {
@@ -47,7 +79,7 @@ void RaylibView::draw(const Simulation &simulation) {
   }
   UpdateTexture(texture_, pixels_.data());
   // note: WHITE here means no change in color
-  DrawTextureEx(texture_, Vector2{0.0F, 0.0F}, 0.0F, static_cast<float>(scale_),
+  DrawTextureEx(texture_, Vector2{GRID_ORIGIN_X, GRID_ORIGIN_Y}, 0.0F, scale_,
                 WHITE);
 }
 

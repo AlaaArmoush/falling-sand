@@ -2,9 +2,20 @@
 
 #include "raylib.h"
 #include "simulation/Simulation.hpp"
+#include <optional>
 #include <vector>
 
 namespace sand {
+
+struct GridPosition {
+  int x;
+  int y;
+};
+
+struct InputCommands {
+  bool clearRequested = false;
+  std::optional<GridPosition> paintPosition;
+};
 
 class RaylibView {
 public:
@@ -15,6 +26,8 @@ public:
   RaylibView &operator=(const RaylibView &) = delete;
 
   ~RaylibView();
+
+  InputCommands pollInput() const;
 
   void draw(const Simulation &simulation);
 

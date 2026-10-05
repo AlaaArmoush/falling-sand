@@ -41,12 +41,18 @@ std::size_t Simulation::indexOf(int x, int y) const {
          static_cast<std::size_t>(x);
 }
 
-bool Simulation::setCell(int x, int y, Cell cell) {
+bool Simulation::placeSand(int x, int y) {
   if (!isInBounds(x, y)) {
     return false;
   }
 
-  cells_[indexOf(x, y)] = cell;
+  Cell &cell = cells_[indexOf(x, y)];
+
+  if (cell.occupied) {
+    return false;
+  }
+
+  cell = Cell{true, 0};
   return true;
 }
 

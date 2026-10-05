@@ -28,6 +28,15 @@ int main() {
     sand::RaylibView view(simulation, CELL_SCALE);
 
     while (!WindowShouldClose()) {
+      const sand::InputCommands commands = view.pollInput();
+
+      if (commands.clearRequested) {
+        simulation.clear();
+      } else if (commands.paintPosition.has_value()) {
+        const sand::GridPosition position = commands.paintPosition.value();
+        simulation.placeSand(position.x, position.y);
+      }
+
       BeginDrawing();
       ClearBackground(BLACK);
       view.draw(simulation);
