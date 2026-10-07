@@ -3,9 +3,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <random>
+#include <sys/types.h>
 #include <vector>
 
 namespace sand {
+
+constexpr std::uint8_t SAND_APPEARANCE_SHADES_COUNT = 5;
 
 struct Cell {
   bool occupied = false;
@@ -14,8 +18,9 @@ struct Cell {
 
 class Simulation {
 public:
-  Simulation(int width, int height);
+  Simulation(int width, int height, std::uint32_t seed = 1);
 
+  std::uint32_t seed() const;
   int width() const;
   int height() const;
   // nullopt means out-of-bounds/ Cell means in-bounds
@@ -31,7 +36,12 @@ private:
 
   int width_;
   int height_;
+  uint32_t seed_;
   std::vector<Cell> cells_;
+
+  // engine seeded once
+  std::mt19937 randomEngine_;
+  std::uniform_int_distribution<int> appearanceDistribution_;
 };
 
 } // namespace sand

@@ -2,12 +2,23 @@
 #include "raylib.h"
 #include "simulation/Simulation.hpp"
 
+#include <array>
 #include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 
 namespace sand {
 
 namespace {
+
+constexpr std::array<Color, SAND_APPEARANCE_SHADES_COUNT> SAND_PALETTE{{
+    Color{214, 174, 91, 255},
+    Color{222, 185, 104, 255},
+    Color{224, 189, 111, 255},
+    Color{232, 196, 113, 255},
+    Color{240, 205, 126, 255},
+}};
+
 // float because origin in screen space
 constexpr float GRID_ORIGIN_X = 0.0F;
 constexpr float GRID_ORIGIN_Y = 0.0F;
@@ -85,7 +96,7 @@ void RaylibView::draw(const Simulation &simulation) {
 
 Color RaylibView::colorForCell(const Cell &cell) const {
   if (cell.occupied) {
-    return BEIGE;
+    return SAND_PALETTE[static_cast<std::uint8_t>(cell.appearance)];
   }
 
   return Color{24, 24, 28, 255};

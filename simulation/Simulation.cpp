@@ -1,11 +1,15 @@
 #include "simulation/Simulation.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <optional>
 #include <stdexcept>
 
 namespace sand {
-Simulation::Simulation(int width, int height) : width_(width), height_(height) {
+Simulation::Simulation(int width, int height, std::uint32_t seed)
+    : width_(width), height_(height), seed_(seed), randomEngine_(seed),
+      appearanceDistribution_(
+          0, static_cast<int>(SAND_APPEARANCE_SHADES_COUNT - 1)) {
   if (width <= 0 || height <= 0) {
     throw std::invalid_argument("Simulation dimensions must be positive");
   }
@@ -21,8 +25,8 @@ Simulation::Simulation(int width, int height) : width_(width), height_(height) {
 }
 
 int Simulation::width() const { return width_; }
-
 int Simulation::height() const { return height_; }
+std::uint32_t Simulation::seed() const { return seed_; }
 
 std::optional<Cell> Simulation::cellAt(int x, int y) const {
   if (!isInBounds(x, y)) {
@@ -52,7 +56,10 @@ bool Simulation::placeSand(int x, int y) {
     return false;
   }
 
-  cell = Cell{true, 0};
+  const auto appearance =
+      static_cast<std::uint8_t>(appearanceDistribution_(randomEngine_));
+  cell = Cell{true, appearance};
+
   return true;
 }
 
