@@ -50,7 +50,10 @@ RaylibView::~RaylibView() { UnloadTexture(texture_); }
 
 InputCommands RaylibView::pollInput() const {
   InputCommands commands;
+
   commands.clearRequested = IsKeyPressed(KEY_C);
+  commands.pauseToggleRequested = IsKeyPressed(KEY_SPACE);
+  commands.singleStepRequested = IsKeyPressed(KEY_N);
 
   if (!IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
     return commands;

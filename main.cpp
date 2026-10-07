@@ -27,14 +27,29 @@ int main() {
     sand::Simulation simulation(GRID_WIDTH, GRID_HEIGHT);
     sand::RaylibView view(simulation, CELL_SCALE);
 
+    bool paused = true;
+    SetWindowTitle("Falling Sand - Paused (N: single step)");
+
     while (!WindowShouldClose()) {
       const sand::InputCommands commands = view.pollInput();
+
+      if (commands.pauseToggleRequested) {
+        paused = !paused;
+        SetWindowTitle(paused ? "Falling Sand - Paused (N: single step)"
+                              : "Falling Sand - Running");
+      }
 
       if (commands.clearRequested) {
         simulation.clear();
       } else if (commands.paintPosition.has_value()) {
         const sand::GridPosition position = commands.paintPosition.value();
         simulation.placeSand(position.x, position.y);
+      }
+
+      if (!paused) {
+        simulation.step();
+      } else if (commands.singleStepRequested) {
+        simulation.step();
       }
 
       BeginDrawing();

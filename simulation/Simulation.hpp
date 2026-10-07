@@ -28,6 +28,8 @@ public:
 
   bool placeSand(int x, int y);
 
+  void step();
+
   void clear();
 
 private:

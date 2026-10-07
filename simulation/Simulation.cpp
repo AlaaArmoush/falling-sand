@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <optional>
 #include <stdexcept>
+#include <utility>
 
 namespace sand {
 Simulation::Simulation(int width, int height, std::uint32_t seed)
@@ -61,6 +62,20 @@ bool Simulation::placeSand(int x, int y) {
   cell = Cell{true, appearance};
 
   return true;
+}
+
+void Simulation::step() {
+  // Start one row above the bottom because the bottom row cannot fall.
+  for (int y = height_ - 2; y >= 0; --y) {
+    for (int x = 0; x < width_; ++x) {
+      Cell &current = cells_[indexOf(x, y)];
+      Cell &below = cells_[indexOf(x, y + 1)];
+
+      if (current.occupied && !below.occupied) {
+        std::swap(current, below);
+      }
+    }
+  }
 }
 
 void Simulation::clear() { std::fill(cells_.begin(), cells_.end(), Cell{}); }

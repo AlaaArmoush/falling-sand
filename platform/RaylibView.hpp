@@ -15,6 +15,8 @@ struct GridPosition {
 struct InputCommands {
   bool clearRequested = false;
   std::optional<GridPosition> paintPosition;
+  bool pauseToggleRequested = false;
+  bool singleStepRequested = false;
 };
 
 class RaylibView {
