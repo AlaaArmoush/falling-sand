@@ -69,10 +69,41 @@ void Simulation::step() {
   for (int y = height_ - 2; y >= 0; --y) {
     for (int x = 0; x < width_; ++x) {
       Cell &current = cells_[indexOf(x, y)];
-      Cell &below = cells_[indexOf(x, y + 1)];
+      if (!current.occupied) {
+        continue;
+      }
 
-      if (current.occupied && !below.occupied) {
-        std::swap(current, below);
+      // Bottom-up: try down, then down-left, then down-right.
+      const int destinationY = y + 1;
+
+      // Bottom-up: try down, then down-left, then down-right.
+      if (isInBounds(x, destinationY)) {
+        Cell &below = cells_[indexOf(x, destinationY)];
+
+        if (!below.occupied) {
+          std::swap(current, below);
+          continue;
+        }
+      }
+
+      const int leftX = x - 1;
+      if (isInBounds(leftX, destinationY)) {
+        Cell &downLeft = cells_[indexOf(leftX, destinationY)];
+
+        if (!downLeft.occupied) {
+          std::swap(current, downLeft);
+          continue;
+        }
+      }
+
+      const int rightX = x + 1;
+      if (isInBounds(rightX, destinationY)) {
+        Cell &downRight = cells_[indexOf(rightX, destinationY)];
+
+        if (!downRight.occupied) {
+          std::swap(current, downRight);
+          continue;
+        }
       }
     }
   }
