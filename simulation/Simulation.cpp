@@ -46,22 +46,41 @@ std::size_t Simulation::indexOf(int x, int y) const {
          static_cast<std::size_t>(x);
 }
 
-bool Simulation::placeSand(int x, int y) {
-  if (!isInBounds(x, y)) {
-    return false;
+void Simulation::placeSandBrush(int centerX, int centerY, int radius) {
+  constexpr int MAX_BRUSH_RADIUS = 64;
+
+  if (radius < 0 || radius > MAX_BRUSH_RADIUS) {
+    throw std::invalid_argument("Brush radius must be between 0 and 64");
   }
 
-  Cell &cell = cells_[indexOf(x, y)];
+  const int squaredRadius = radius * radius;
 
-  if (cell.occupied) {
-    return false;
+  for (int offsetY = -radius; offsetY <= radius; ++offsetY) {
+    for (int offsetX = -radius; offsetX <= radius; ++offsetX) {
+      const int squaredDistance = offsetX * offsetX + offsetY * offsetY;
+
+      if (squaredDistance > squaredRadius) {
+        continue;
+      }
+
+      const int candidateX = centerX + offsetX;
+      const int candidateY = centerY + offsetY;
+
+      if (!isInBounds(candidateX, candidateY)) {
+        continue;
+      }
+
+      Cell &cell = cells_[indexOf(candidateX, candidateY)];
+
+      if (cell.occupied) {
+        continue;
+      }
+
+      const auto appearance =
+          static_cast<std::uint8_t>(appearanceDistribution_(randomEngine_));
+      cell = Cell{true, appearance};
+    }
   }
-
-  const auto appearance =
-      static_cast<std::uint8_t>(appearanceDistribution_(randomEngine_));
-  cell = Cell{true, appearance};
-
-  return true;
 }
 
 void Simulation::step() {

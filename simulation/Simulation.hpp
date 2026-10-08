@@ -26,7 +26,7 @@ public:
   // nullopt means out-of-bounds/ Cell means in-bounds
   std::optional<Cell> cellAt(int x, int y) const;
 
-  bool placeSand(int x, int y);
+  void placeSandBrush(int centerX, int centerY, int radius);
 
   void step();
 

@@ -8,6 +8,7 @@ int main() {
   constexpr int GRID_WIDTH = 256;
   constexpr int GRID_HEIGHT = 192;
   constexpr int CELL_SCALE = 4;
+  constexpr int BRUSH_RADIUS = 3;
 
   constexpr int WINDOW_WIDTH = GRID_WIDTH * CELL_SCALE;
   constexpr int WINDOW_HEIGHT = GRID_HEIGHT * CELL_SCALE;
@@ -43,7 +44,7 @@ int main() {
         simulation.clear();
       } else if (commands.paintPosition.has_value()) {
         const sand::GridPosition position = commands.paintPosition.value();
-        simulation.placeSand(position.x, position.y);
+        simulation.placeSandBrush(position.x, position.y, BRUSH_RADIUS);
       }
 
       if (!paused) {
