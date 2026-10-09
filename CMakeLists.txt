@@ -12,6 +12,7 @@ add_executable(falling_sand
     platform/RaylibView.hpp
     simulation/Simulation.cpp
     simulation/Simulation.hpp
+    simulation/Materials.hpp
 )
 
 target_include_directories(falling_sand PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")

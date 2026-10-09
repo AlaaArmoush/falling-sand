@@ -98,11 +98,15 @@ void RaylibView::draw(const Simulation &simulation) {
 }
 
 Color RaylibView::colorForCell(const Cell &cell) const {
-  if (cell.occupied) {
-    return SAND_PALETTE[static_cast<std::uint8_t>(cell.appearance)];
+  switch (cell.material) {
+  case Material::Empty:
+    return Color{24, 24, 28, 255};
+
+  case Material::Sand:
+    return SAND_PALETTE[cell.appearance];
   }
 
-  return Color{24, 24, 28, 255};
+  throw std::runtime_error("unknown material identity");
 }
 
 } // namespace sand

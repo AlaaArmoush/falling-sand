@@ -1,5 +1,7 @@
 #pragma once
 
+#include "simulation/Materials.hpp"
+
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -8,13 +10,6 @@
 #include <vector>
 
 namespace sand {
-
-constexpr std::uint8_t SAND_APPEARANCE_SHADES_COUNT = 5;
-
-struct Cell {
-  bool occupied = false;
-  std::uint8_t appearance = 0; // cell color shade
-};
 
 class Simulation {
 public:

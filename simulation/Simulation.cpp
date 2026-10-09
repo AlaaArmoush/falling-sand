@@ -86,7 +86,7 @@ void Simulation::placeSandBrush(int centerX, int centerY, int radius,
 
       Cell &cell = cells_[indexOf(candidateX, candidateY)];
 
-      if (cell.occupied) {
+      if (cell.material != Material::Empty) {
         continue;
       }
 
@@ -96,7 +96,7 @@ void Simulation::placeSandBrush(int centerX, int centerY, int radius,
 
       const auto appearance =
           static_cast<std::uint8_t>(appearanceDistribution_(randomEngine_));
-      cell = Cell{true, appearance};
+      cell = Cell{Material::Sand, appearance};
     }
   }
 }
@@ -106,7 +106,7 @@ void Simulation::step() {
   for (int y = height_ - 2; y >= 0; --y) {
     for (int x = 0; x < width_; ++x) {
       Cell &current = cells_[indexOf(x, y)];
-      if (!current.occupied) {
+      if (current.material == Material::Empty) {
         continue;
       }
 
@@ -117,7 +117,7 @@ void Simulation::step() {
       if (isInBounds(x, destinationY)) {
         Cell &below = cells_[indexOf(x, destinationY)];
 
-        if (!below.occupied) {
+        if (below.material == Material::Empty) {
           std::swap(current, below);
           continue;
         }
@@ -127,7 +127,7 @@ void Simulation::step() {
       if (isInBounds(leftX, destinationY)) {
         Cell &downLeft = cells_[indexOf(leftX, destinationY)];
 
-        if (!downLeft.occupied) {
+        if (downLeft.material == Material::Empty) {
           std::swap(current, downLeft);
           continue;
         }
@@ -137,7 +137,7 @@ void Simulation::step() {
       if (isInBounds(rightX, destinationY)) {
         Cell &downRight = cells_[indexOf(rightX, destinationY)];
 
-        if (!downRight.occupied) {
+        if (downRight.material == Material::Empty) {
           std::swap(current, downRight);
           continue;
         }
