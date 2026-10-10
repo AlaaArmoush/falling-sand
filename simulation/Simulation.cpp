@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <optional>
 #include <random>
+#include <raylib.h>
 #include <stdexcept>
 #include <utility>
 
@@ -102,18 +103,22 @@ void Simulation::placeSandBrush(int centerX, int centerY, int radius,
 }
 
 void Simulation::step() {
+  // Give either side a 50/50 chance to move first.
+  std::bernoulli_distribution scanFromLeft(0.5);
+  const bool leftToRight = scanFromLeft(randomEngine_);
+
   // Start one row above the bottom because the bottom row cannot fall.
   for (int y = height_ - 2; y >= 0; --y) {
-    for (int x = 0; x < width_; ++x) {
+    for (int offset = 0; offset < width_; ++offset) {
+      const int x = leftToRight ? offset : width_ - 1 - offset;
       Cell &current = cells_[indexOf(x, y)];
+
       if (current.material == Material::Empty) {
         continue;
       }
 
-      // Bottom-up: try down, then down-left, then down-right.
       const int destinationY = y + 1;
 
-      // Bottom-up: try down, then down-left, then down-right.
       if (isInBounds(x, destinationY)) {
         Cell &below = cells_[indexOf(x, destinationY)];
 
@@ -124,24 +129,30 @@ void Simulation::step() {
       }
 
       const int leftX = x - 1;
-      if (isInBounds(leftX, destinationY)) {
-        Cell &downLeft = cells_[indexOf(leftX, destinationY)];
-
-        if (downLeft.material == Material::Empty) {
-          std::swap(current, downLeft);
-          continue;
-        }
-      }
-
       const int rightX = x + 1;
-      if (isInBounds(rightX, destinationY)) {
-        Cell &downRight = cells_[indexOf(rightX, destinationY)];
 
-        if (downRight.material == Material::Empty) {
-          std::swap(current, downRight);
-          continue;
-        }
+      const bool leftIsEmpty =
+          isInBounds(leftX, destinationY) &&
+          cells_[indexOf(leftX, destinationY)].material == Material::Empty;
+
+      const bool rightIsEmpty =
+          isInBounds(rightX, destinationY) &&
+          cells_[indexOf(rightX, destinationY)].material == Material::Empty;
+
+      int destinationX = x;
+
+      if (leftIsEmpty && rightIsEmpty) {
+        std::bernoulli_distribution chooseLeft(0.5);
+        destinationX = chooseLeft(randomEngine_) ? leftX : rightX;
+      } else if (leftIsEmpty) {
+        destinationX = leftX;
+      } else if (rightIsEmpty) {
+        destinationX = rightX;
+      } else {
+        continue;
       }
+
+      std::swap(current, cells_[indexOf(destinationX, destinationY)]);
     }
   }
 }
